@@ -206,4 +206,74 @@ router.get('/api/admin/audit-logs', authMiddleware, roleMiddleware(['super_admin
   }
 });
 
+// Export bookings report (CSV) - supports ?type=daily|monthly
+router.get('/api/admin/reports', authMiddleware, roleMiddleware(['super_admin', 'express_admin']), async (req, res) => {
+  try {
+    const type = (req.query.type as string) || 'daily';
+    let where = '';
+    if (type === 'daily') {
+      where = `WHERE DATE(b.created_at) = CURRENT_DATE`;
+    } else if (type === 'monthly') {
+      where = `WHERE DATE_TRUNC('month', b.created_at) = DATE_TRUNC('month', CURRENT_DATE)`;
+    }
+
+    // Express admins only their express
+    if (req.user!.role === 'express_admin') {
+      where += (where ? ' AND ' : ' WHERE ') + `bu.express_id = ${req.user!.express_id}`;
+    }
+
+    const sql = `SELECT b.booking_id, b.booking_reference, b.passenger_name, b.passenger_phone, b.num_seats, b.status, b.created_at, e.name as express_name, r.from_city, r.to_city
+                 FROM bookings b
+                 LEFT JOIN trips t ON b.trip_id = t.trip_id
+                 LEFT JOIN buses bu ON t.bus_id = bu.bus_id
+                 LEFT JOIN expresses e ON bu.express_id = e.express_id
+                 LEFT JOIN routes r ON t.route_id = r.route_id
+                 ${where} ORDER BY b.created_at DESC`;
+
+    const result = await query(sql, []);
+
+    // Build CSV
+    const rows = result.rows;
+    const header = ['booking_id','booking_reference','passenger_name','passenger_phone','num_seats','status','created_at','express_name','from_city','to_city'];
+    const csv = [header.join(',')].concat(rows.map((r: any) => header.map((h) => `"${(r[h] ?? '')}"`).join(','))).join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="ihute_report_${type}.csv"`);
+    res.send(csv);
+  } catch (error) {
+    console.error('Export error:', error);
+    res.status(500).json({ error: 'Failed to generate report' });
+  }
+});
+
+// Admin confirm cash payment for a booking
+router.post('/api/admin/bookings/:booking_id/confirm-payment', authMiddleware, roleMiddleware(['super_admin', 'express_admin']), async (req, res) => {
+  const { booking_id } = req.params;
+  const { amount_rwf, method, transaction_id } = req.body;
+  try {
+    const bookingRes = await query(`SELECT * FROM bookings WHERE booking_id = $1`, [booking_id]);
+    if (!bookingRes.rows[0]) return res.status(404).json({ error: 'Booking not found' });
+
+    const booking = bookingRes.rows[0];
+
+    // Create payment record
+    const paymentResult = await query(
+      `INSERT INTO payments (booking_id, amount_rwf, method, status, transaction_id) VALUES ($1, $2, $3, 'completed', $4) RETURNING *`,
+      [booking_id, amount_rwf || 0, method || 'cash', transaction_id || `ADMIN-${Date.now()}`]
+    );
+
+    // Confirm booking seats
+    await query(`UPDATE bookings SET status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE booking_id = $1`, [booking_id]);
+
+    await logAuditAction(req.user!.id, 'CONFIRM_PAYMENT', 'bookings', Number(booking_id), null, paymentResult.rows[0]);
+
+    res.json({ status: 'completed', payment: paymentResult.rows[0] });
+  } catch (error) {
+    console.error('Confirm payment error:', error);
+    res.status(500).json({ error: 'Failed to confirm payment' });
+  }
+});
+
 export default router;
+
+

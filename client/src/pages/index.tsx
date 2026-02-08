@@ -8,6 +8,7 @@ export default function Home() {
   const t = useT();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [fadeIn, setFadeIn] = useState(false);
+  const [paused, setPaused] = useState(false);
   
   const slides = [
     '/1769485936552.png',
@@ -21,11 +22,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+    let interval: NodeJS.Timer | null = null;
+    if (!paused) {
+      interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      }, 4000);
+    }
+    return () => { if (interval) clearInterval(interval); };
+  }, [paused]);
 
   const styles = {
     fadeInAnimation: {
@@ -96,14 +100,20 @@ export default function Home() {
                 {t('home.bookNow', 'Book Now')}
               </Link>
             </div>
-            <div style={{ ...styles.slideAnimation, animationDelay: '0.4s', position: 'relative', height: '360px', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }} className="slide-container">
-              <Image 
-                src={slides[currentSlide]} 
-                alt={`Slide ${currentSlide + 1}`} 
-                fill 
-                style={{ objectFit: 'cover' }}
+            <div
+              style={{ ...styles.slideAnimation, animationDelay: '0.4s', position: 'relative', height: '360px', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
+              className="slide-container"
+              onMouseEnter={() => setPaused(true)}
+              onMouseLeave={() => setPaused(false)}
+            >
+              <Image
+                src={slides[currentSlide]}
+                alt={`Slide ${currentSlide + 1}`}
+                fill
+                style={{ objectFit: 'cover', transition: 'opacity 0.8s ease' }}
                 priority
               />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.35))', pointerEvents: 'none' }} />
               <div style={{ position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px' }}>
                 {slides.map((_, index) => (
                   <div
@@ -120,6 +130,9 @@ export default function Home() {
                     onClick={() => setCurrentSlide(index)}
                   />
                 ))}
+              </div>
+              <div style={{ position: 'absolute', left: '18px', bottom: '22px', color: 'white', textShadow: '0 6px 18px rgba(0,0,0,0.6)', pointerEvents: 'none', maxWidth: '60%' }}>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>{t('home.slideTag', 'Comfortable travel with IHUTE')}</h3>
               </div>
             </div>
           </section>
