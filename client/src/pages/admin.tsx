@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/components/Layout';
+import Image from 'next/image';
 import api from '@/api';
 import { useAppStore } from '@/store';
 
@@ -36,6 +37,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const confirmPayment = async (bookingId: number) => {
+    try {
+      await api.post(`/api/admin/bookings/${bookingId}/confirm-payment`, { method: 'cash', amount_rwf: 0 });
+      fetchData();
+    } catch (err) {
+      console.error('Confirm payment failed', err);
+      alert('Confirm payment failed');
+    }
+  };
+
   if (loading) return (
     <Layout>
       <div style={{ padding: '40px 0' }}><p>Loading...</p></div>
@@ -45,7 +56,13 @@ export default function AdminDashboard() {
   return (
     <Layout>
       <div style={{ padding: '40px 0' }}>
-        <h1>Admin Dashboard</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+          <Image src="/logo.png" alt="IHUTE" width={56} height={56} style={{ borderRadius: 8 }} />
+          <div>
+            <h1 style={{ margin: 0 }}>Admin Dashboard</h1>
+            <div style={{ color: '#6b7280', fontSize: '13px' }}>Manage buses, routes, bookings and payments</div>
+          </div>
+        </div>
         <p>Role: {user?.role}</p>
 
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
@@ -75,6 +92,7 @@ export default function AdminDashboard() {
                     <th>Seats</th>
                     <th>Status</th>
                     <th>Created</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -86,6 +104,11 @@ export default function AdminDashboard() {
                       <td>{b.num_seats}</td>
                       <td><span style={statusBadgeStyles(b.status)}>{b.status}</span></td>
                       <td>{new Date(b.created_at).toLocaleDateString()}</td>
+                      <td>
+                        {b.status !== 'paid' && (
+                          <button onClick={() => confirmPayment(b.booking_id)} style={{ padding: '6px 10px', borderRadius: 6, background: '#2e7d32', color: 'white', border: 'none', cursor: 'pointer' }}>Confirm Payment</button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

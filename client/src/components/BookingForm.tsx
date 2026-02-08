@@ -18,6 +18,8 @@ export default function BookingForm({ onSuccess }: BookingFormProps) {
   const [passengerPhone, setPassengerPhone] = useState('');
   const [passengerEmail, setPassengerEmail] = useState('');
   const [selectedTrip, setSelectedTrip] = useState<any>(null);
+  const [bookingId, setBookingId] = useState<number | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash' | 'momo'>('card');
   const [trips, setTrips] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,7 +33,8 @@ export default function BookingForm({ onSuccess }: BookingFormProps) {
 
     setLoading(true);
     try {
-      const res = await api.get('/api/trips/search', { params: { from_city: fromCity, to_city: toCity, departure_date: date, num_seats: numSeats } });
+      const endpoint = transportType === 'public' ? '/api/trips/search' : '/api/cars/search';
+      const res = await api.get(endpoint, { params: { from_city: fromCity, to_city: toCity, departure_date: date, num_seats: numSeats } });
       setTrips(res.data);
       setStep(2);
       setError('');
@@ -51,8 +54,8 @@ export default function BookingForm({ onSuccess }: BookingFormProps) {
     setLoading(true);
     try {
       const res = await api.post('/api/bookings', {
-        trip_id: selectedTrip?.trip_id || null,
-        car_id: null,
+        trip_id: transportType === 'public' ? selectedTrip?.trip_id || null : null,
+        car_id: transportType === 'private' ? selectedTrip?.car_id || null : null,
         passenger_name: passengerName,
         passenger_phone: passengerPhone,
         passenger_email: passengerEmail,
@@ -60,9 +63,34 @@ export default function BookingForm({ onSuccess }: BookingFormProps) {
       });
       setSuccess(`Booking created! Reference: ${res.data.booking_reference}`);
       onSuccess?.(res.data.booking_id);
-      setStep(5);
+      setBookingId(res.data.booking_id);
+      // Move to payment step
+      setStep(4);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Booking failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const amountToPay = selectedTrip ? ((selectedTrip.price_rwf || selectedTrip.price || 0) * numSeats) : 0;
+
+  const submitPayment = async () => {
+    if (!bookingId) {
+      setError('Missing booking id');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await api.post('/api/payments', { booking_id: bookingId, amount_rwf: amountToPay, method: paymentMethod });
+      if (res.data.status === 'completed') {
+        setSuccess('Payment successful. Booking confirmed.');
+        setStep(5);
+      } else {
+        setError('Payment failed');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Payment failed');
     } finally {
       setLoading(false);
     }
@@ -114,11 +142,14 @@ export default function BookingForm({ onSuccess }: BookingFormProps) {
           ) : (
             trips.map((trip) => (
               <div
-                key={trip.trip_id}
-                onClick={() => { setSelectedTrip(trip); setStep(4); }}
+                key={trip.trip_id || trip.car_id}
+                onClick={() => { setSelectedTrip(trip); setStep(3); }}
                 style={{ ...tripCardStyles, cursor: 'pointer' }}
               >
-                <strong>{trip.express_name}</strong> | {trip.departure_time} | {trip.available_seats} seats | {trip.price_rwf} RWF
+                <strong>{trip.express_name || trip.driver_name || 'Private'}</strong> |
+                {trip.departure_time ? ` ${trip.departure_time}` : ''}
+                {trip.available_seats !== undefined ? ` | ${trip.available_seats} seats` : ''}
+                {trip.price_rwf ? ` | ${trip.price_rwf} RWF` : ''}
               </div>
             ))
           )}
@@ -126,7 +157,7 @@ export default function BookingForm({ onSuccess }: BookingFormProps) {
         </>
       )}
 
-      {step === 4 && (
+      {step === 3 && (
         <>
           <h3>Passenger Information</h3>
           <div style={stepStyles}>
@@ -142,6 +173,30 @@ export default function BookingForm({ onSuccess }: BookingFormProps) {
             <input type="email" value={passengerEmail} onChange={(e) => setPassengerEmail(e.target.value)} style={inputStyles} />
           </div>
           <button onClick={submitBooking} disabled={loading} style={buttonStyles}>{loading ? 'Processing...' : 'Proceed to Payment'}</button>
+        </>
+      )}
+
+      {step === 4 && (
+        <>
+          <h3>Payment</h3>
+          <div style={{ ...tripCardStyles, marginBottom: '12px' }}>
+            <div><strong>Trip:</strong> {selectedTrip?.express_name || selectedTrip?.driver_name || 'Selected'}</div>
+            <div><strong>Route:</strong> {selectedTrip?.from_city || ''} → {selectedTrip?.to_city || ''}</div>
+            <div><strong>Seats:</strong> {numSeats}</div>
+            <div style={{ marginTop: '8px', fontSize: '18px', fontWeight: 700 }}>{amountToPay} RWF</div>
+          </div>
+
+          <div style={stepStyles}>
+            <label>Payment Method</label>
+            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as any)} style={inputStyles}>
+              <option value="card">Card</option>
+              <option value="momo">Mobile Money</option>
+              <option value="cash">Cash (Confirm in Admin)</option>
+            </select>
+          </div>
+
+          <button onClick={submitPayment} disabled={loading} style={buttonStyles}>{loading ? 'Processing...' : 'Pay Now'}</button>
+          <div style={{ marginTop: '8px' }}><button onClick={() => setStep(3)} style={{ ...buttonStyles, background: '#fff', color: '#000', border: '1px solid #ddd' }}>Back</button></div>
         </>
       )}
 
