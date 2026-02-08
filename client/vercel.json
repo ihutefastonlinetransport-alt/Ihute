@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_API_URL": {
+      "description": "Backend API URL",
+      "default": "https://ihute-api.up.railway.app",
+      "required": false
+    }
+  },
+  "rewrites": [],
+  "redirects": []
+}
