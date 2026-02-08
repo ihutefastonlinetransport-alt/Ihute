@@ -81,34 +81,69 @@ export default function Layout({ children }: LayoutProps) {
       <main style={{ marginTop: '88px', minHeight: 'calc(100vh - 88px)', background: '#fff' }}>
         <div style={containerStyles}>{children}</div>
       </main>
-      <footer style={{ padding: '40px 0', background: 'linear-gradient(135deg, #1f2937, #111827)', color: '#e5e7eb', marginTop: '60px' }}>
+      <footer style={{ padding: '48px 0', background: 'linear-gradient(135deg, #1f2937, #111827)', color: '#e5e7eb', marginTop: '60px' }}>
         <div style={containerStyles}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '40px', paddingBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr 1fr 1fr' }, gap: '40px', paddingBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            {/* About Section */}
             <div>
-              <h4 style={{ margin: '0 0 12px', color: '#f57c00', fontSize: '16px', fontWeight: 'bold' }}>About IHUTE</h4>
+              <h4 style={{ margin: '0 0 16px', color: '#f57c00', fontSize: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Image src="/logo.png" alt="IHUTE" width={32} height={32} style={{ borderRadius: '6px' }} />
+                IHUTE Rwanda
+              </h4>
               <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#d1d5db', margin: 0 }}>Fast, safe, and friendly transport booking across Rwanda with real-time tracking and trusted drivers.</p>
             </div>
+
+            {/* Contact Section */}
+            <div>
+              <h4 style={{ margin: '0 0 12px', color: '#2e7d32', fontSize: '14px', fontWeight: 'bold' }}>📞 Contact</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ marginBottom: '8px' }}>
+                  <a href="mailto:ihutefast@gmail.com" style={{ color: '#fbbf24', textDecoration: 'none', fontSize: '14px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    ✉️ ihutefast@gmail.com
+                  </a>
+                </li>
+                <li style={{ marginBottom: '8px' }}>
+                  <a href="tel:+250700000000" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>📱 +250 700 000 000</a>
+                </li>
+                <li><span style={{ color: '#d1d5db', fontSize: '14px' }}>📍 Kigali, Rwanda</span></li>
+              </ul>
+            </div>
+
+            {/* Quick Links */}
             <div>
               <h4 style={{ margin: '0 0 12px', color: '#f57c00', fontSize: '14px', fontWeight: 'bold' }}>Quick Links</h4>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                <li style={{ marginBottom: '8px' }}><Link href="/" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Home</Link></li>
-                <li style={{ marginBottom: '8px' }}><Link href="/booking" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Booking</Link></li>
-                <li><Link href="/login" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }}>Login</Link></li>
+                <li style={{ marginBottom: '8px' }}><Link href="/" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px', transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#f57c00'} onMouseOut={(e) => e.currentTarget.style.color = '#d1d5db'}>🏠 Home</Link></li>
+                <li style={{ marginBottom: '8px' }}><Link href="/booking" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }} onMouseOver={(e) => e.currentTarget.style.color = '#f57c00'} onMouseOut={(e) => e.currentTarget.style.color = '#d1d5db'}>📅 Book Now</Link></li>
+                <li><Link href="/login" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '14px' }} onMouseOver={(e) => e.currentTarget.style.color = '#f57c00'} onMouseOut={(e) => e.currentTarget.style.color = '#d1d5db'}>🔐 Admin Login</Link></li>
               </ul>
             </div>
+
+            {/* Follow Us */}
             <div>
               <h4 style={{ margin: '0 0 12px', color: '#f57c00', fontSize: '14px', fontWeight: 'bold' }}>Follow Us</h4>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                {['📘 FB', '🐦 TW', '📷 IG'].map((social, i) => (
-                  <a key={i} href="#" style={{ padding: '8px 12px', background: '#374151', borderRadius: '6px', color: '#e5e7eb', textDecoration: 'none', fontSize: '12px', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseOver={(e) => { e.currentTarget.style.background = '#f57c00'; }} onMouseOut={(e) => { e.currentTarget.style.background = '#374151'; }}>
-                    {social}
-                  </a>
-                ))}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" style={{ padding: '10px 12px', background: '#374151', borderRadius: '8px', color: '#e5e7eb', textDecoration: 'none', fontSize: '14px', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseOver={(e) => { e.currentTarget.style.background = '#f57c00'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseOut={(e) => { e.currentTarget.style.background = '#374151'; e.currentTarget.style.transform = 'none'; }}>
+                  f
+                </a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" style={{ padding: '10px 12px', background: '#374151', borderRadius: '8px', color: '#e5e7eb', textDecoration: 'none', fontSize: '14px', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseOver={(e) => { e.currentTarget.style.background = '#2e7d32'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseOut={(e) => { e.currentTarget.style.background = '#374151'; e.currentTarget.style.transform = 'none'; }}>
+                  𝕏
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{ padding: '10px 12px', background: '#374151', borderRadius: '8px', color: '#e5e7eb', textDecoration: 'none', fontSize: '14px', transition: 'all 0.3s ease', cursor: 'pointer' }} onMouseOver={(e) => { e.currentTarget.style.background = '#ec4899'; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseOut={(e) => { e.currentTarget.style.background = '#374151'; e.currentTarget.style.transform = 'none'; }}>
+                  📷
+                </a>
               </div>
             </div>
           </div>
-          <div style={{ paddingTop: '20px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>
-            <strong>IHUTE Rwanda</strong> © {new Date().getFullYear()} All Rights Reserved
+
+          {/* Copyright */}
+          <div style={{ paddingTop: '24px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>
+            <p style={{ margin: '0 0 8px' }}>
+              <strong style={{ color: '#f57c00' }}>IHUTE Rwanda</strong> © {new Date().getFullYear()} All Rights Reserved
+            </p>
+            <p style={{ margin: 0, fontSize: '12px' }}>
+              📧 <a href="mailto:ihutefast@gmail.com" style={{ color: '#fbbf24', textDecoration: 'none' }}>ihutefast@gmail.com</a>
+            </p>
           </div>
         </div>
       </footer>

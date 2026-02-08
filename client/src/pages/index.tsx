@@ -155,24 +155,27 @@ export default function Home() {
 
           <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', padding: '40px 0', ...styles.slideAnimation, animationDelay: '0.8s' }}>
             <div style={{ background: 'white', padding: '32px', borderRadius: '16px', boxShadow: '0 4px 15px rgba(16,24,40,0.08)' }}>
-              <h3 style={{ color: '#1f2937', marginBottom: '16px', fontSize: '1.5rem' }}>{t('home.aboutIHUTE', 'About IHUTE')}</h3>
+              <h3 style={{ color: '#1f2937', marginBottom: '16px', fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Image src="/logo.png" alt="IHUTE" width={32} height={32} style={{ borderRadius: '6px' }} />
+                {t('home.aboutIHUTE', 'About IHUTE')}
+              </h3>
               <p style={{ color: '#6b7280', lineHeight: '1.8' }}>{t('home.aboutDesc', 'IHUTE provides fast, friendly, and secure transport booking across Rwanda. Book public express buses or private vehicles with real-time tracking and SMS confirmations. We prioritize your safety and comfort on every journey.')}</p>
-              <div style={{ marginTop: '16px', displayg: 'flex', gap: '12px' }}>
-                {[t('home.facebook', 'Facebook'), t('home.twitter', 'Twitter'), t('home.instagram', 'Instagram')].map((social) => (
-                  <span key={social} style={{ display: 'inline-block', padding: '8px 12px', background: '#f5f7fa', borderRadius: '6px', marginRight: '8px', cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseOver={(e) => { e.currentTarget.style.background = '#f57c00'; e.currentTarget.style.color = 'white'; }} onMouseOut={(e) => { e.currentTarget.style.background = '#f5f7fa'; e.currentTarget.style.color = '#1f2937'; }}>
-                    {social}
-                  </span>
-                ))}
+              <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '2px solid #f0f0f0' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>✅ Verified & Licensed Operator</div>
+                <div style={{ fontSize: '12px', color: '#6b7280' }}>✅ 24/7 Customer Support</div>
               </div>
             </div>
-            <div style={{ background: 'white', padding: '32px', borderRadius: '16px', boxShadow: '0 4px 15px rgba(16,24,40,0.08)' }}>
-              <h3 style={{ color: '#1f2937', marginBottom: '20px', fontSize: '1.5rem' }}>{t('home.contactUs', 'Contact Us')}</h3>
-              <form onSubmit={(e) => { e.preventDefault(); alert(t('messages.success', 'Thank you for contacting IHUTE!')); }} >
-                <input placeholder={t('home.yourName', 'Your Name')} style={inputStyles} />
-                <input type="email" placeholder={t('home.yourEmail', 'Your Email')} style={{ ...inputStyles, marginTop: '12px' }} />
-                <textarea placeholder={t('home.yourMessage', 'Your Message')} rows={4} style={{ ...inputStyles, marginTop: '12px' }}></textarea>
-                <button type="submit" style={{ ...buttonStyles, marginTop: '16px' }}>{t('home.sendMessage', 'Send Message')}</button>
-              </form>
+            <div style={{ background: 'linear-gradient(135deg, #f57c00, #e67e22)', padding: '32px', borderRadius: '16px', boxShadow: '0 4px 15px rgba(245, 124, 0, 0.2)', color: 'white' }}>
+              <h3 style={{ margin: '0 0 20px', fontSize: '1.5rem' }}>📞 Get in Touch</h3>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '4px' }}>✉️ Email</div>
+                <a href="mailto:ihutefast@gmail.com" style={{ color: 'white', fontSize: '15px', fontWeight: 500, textDecoration: 'none', display: 'block', marginBottom: '16px' }}>ihutefast@gmail.com</a>
+                <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '4px' }}>📱 Phone</div>
+                <a href="tel:+250700000000" style={{ color: 'white', fontSize: '15px', fontWeight: 500, textDecoration: 'none', display: 'block', marginBottom: '16px' }}>+250 700 000 000</a>
+                <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '4px' }}>📍 Location</div>
+                <span style={{ fontSize: '14px', opacity: 0.95 }}>Kigali, Rwanda</span>
+              </div>
+              <button onClick={() => { window.location.href = '/booking'; }} style={{ width: '100%', padding: '12px', background: 'white', color: '#f57c00', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}>Book Now →</button>
             </div>
           </section>
         </div>
